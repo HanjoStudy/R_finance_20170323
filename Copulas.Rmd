@@ -32,7 +32,7 @@ load_pkg(c("dplyr", "ggplot2"))
   
 # Introduction
 
-* In the past session, you have encountered a vast array of financial models
+* In financial econometrics, you will encounter a vast array of financial models
     + Basic ARIMA models for the mean equation
     + GARCH extensions to deal with heteroscedasticity
     + Multivariate GARCH models that deal with dependence modeling
@@ -240,7 +240,7 @@ Each of the structures provide their own insight into the dynamics of the market
 
 
 
-# Energ market vines 
+# Energy market through Vine Visualization 
 
 \centering
 \begin{columns}
@@ -309,6 +309,6 @@ Each of the structures provide their own insight into the dynamics of the market
 
 
 <!-- If there are references: -->
-#References
-\scriptsize
+<!-- #References -->
+<!-- \scriptsize -->
 
