@@ -1,0 +1,252 @@
+---
+title: "Prac"
+author: "Hanjo Odendaal"
+date: "October 6, 2016"
+output: html_document
+---
+
+```{r setup}
+# Copula generator
+library(rmsfuns)
+suppressPackageStartupMessages(load_pkg(c("copula", "VineCopula", "magrittr")))
+suppressPackageStartupMessages(load_pkg(c("scatterplot3d", "rgl", "ggplot2", "grid")))
+set.seed(235)
+```
+
+# Intro 
+## Probability Distribution function
+
+```{r}
+df_sample <- data.frame(x = c(
+  x = rnorm(10000, mean = 0, sd = 3),
+  y = rnorm(10000, mean = 0, sd = 10),
+  z = rnorm(10000, mean = 0, sd = 2),
+  q = rnorm(10000, mean = 1, sd = 1.5)),
+  g = gl(4, 10000))
+head(df_sample)
+```
+
+```{r}
+ggplot(df_sample, aes(x, colour = g)) + geom_density(adjust = 5)
+```
+
+## Cumulative Distribution function
+```{r}
+ggplot(df_sample, aes(x, colour = g)) + stat_ecdf()
+```
+
+
+# Copulas 
+
+* THANKS TO THOMAS NAGLER's VineCopula package
+
+* https://www.r-bloggers.com/how-to-fit-a-copula-model-in-r-heavily-revised-part-1-basic-tools/
+  
+## Simulating Copulas  
+
+* Elliptical and Archimedean copulas have nice mathematical proprieties, shape and formulas. 
+* They are a good choice for the initial warm up. 
+* Assuming you already know the parameters, this is how you would generate a bivariate normal and a t copula
+
+```{r}
+# Generate a bivariate normal copula with rho = 0.7
+normal <- tCopula(par = 0.8, dim =2)
+# Generate a bivariate t-copula with rho = 0.8 and df = 2
+stc <- tCopula(par = 0.8, dim = 2, df = 1)
+
+# Generate random samples
+norm_d <- rCopula(2000, normal)
+t_d <- rCopula(2000, stc)
+```
+
+## Simulating (cont.)
+
+* Great simplyfication when trying to model the joint behaviour complex phenomena, mainly because the marginals are easier to model than the joint distribution. Furthermore, if you had to model the joint behaviour of, say more than 20 objects (for instance the life of 20+ capacitors in an electrical component), then you would probably have a hard time by going straight into modelling the joint behaviour while the marginal distributions may be easier to estimate.
+
+```{r}
+# Plot the samples
+p1 <- qplot(norm_d[,1], 
+            norm_d[,2], 
+            colour = norm_d[,1],
+            main="Norm with rho = 0.8", 
+            xlab = "u", 
+            ylab = "v")
+
+p1
+
+p2 <- qplot(t_d[,1], 
+            t_d[,2], 
+            colour = t_d[,1], 
+            main="Student t with rho = 0.8 and df = 1", 
+            xlab = "u", 
+            ylab = "v") 
+
+p2
+
+```
+
+* Once the copula has been fitted, you can easily generate random numbers by using `rCopula` method for the single copula
+
+```{r}
+# Generate random samples
+norm_d <- rCopula(2000, normal)
+t_d <- rCopula(2000, stc)
+```
+
+
+* The general form "name" + "Copula()" can be used to build Archimedean copulas as well. Archimedean copulas take only a single parameter $\theta$
+
+# Copulas with the VineCopula package
+```{r}
+# Build a Frank, a Gumbel and a Clayton copula
+
+frank <- BiCop(5, tau = 0.5) %>% 
+  BiCopSim(10000 , .)
+gumbel <- BiCop(4, tau = 0.5) %>% 
+  BiCopSim(10000 , .)
+clayton <- BiCop(3, tau = 0.5) %>% 
+  BiCopSim(10000 , .)
+
+```
+
+
+* Print information on the Frank copula
+```{r}
+print(BiCop(5, tau = 0.5))
+```
+
+* Plot the samples
+```{r}
+p1 <- qplot(frank[,1], frank[,2], colour = frank[,1], main="Frank copula random samples", xlab = "u", ylab = "v")
+p2 <- qplot(gumbel[,1], gumbel[,2], colour = gumbel[,1], main="Gumbel copula random samples", xlab = "u", ylab = "v") 
+p3 <- qplot(clayton[,1], clayton[,2], colour = clayton[,1], main="Clayton copula random samples", xlab = "u", ylab = "v")
+```
+
+
+* Define grid layout to locate plots and print each graph^(1)
+```{r, fig.width=13}
+pushViewport(viewport(layout = grid.layout(1, 3)))
+print(p1, vp = viewport(layout.pos.row = 1, layout.pos.col = 1))
+print(p2, vp = viewport(layout.pos.row = 1, layout.pos.col = 2))
+print(p3, vp = viewport(layout.pos.row = 1, layout.pos.col = 3))
+```
+
+* Density plots of differing copulas
+
+```{r}
+plot(BiCop(5, tau = 0.5),  main ="Frank copula density")
+plot(BiCop(4, tau = 0.5),  main ="Gumbel copula density")
+plot(BiCop(3, tau = 0.5),  main ="Clayton copula density")
+
+```
+
+
+* Changes in dependence measure
+```{r, fig.width=13}
+t1 <- BiCop(2, tau = 0.2, par2 = 3) %>%
+   BiCopSim(10000 , .) 
+ 
+t2 <- BiCop(2, tau = 0.5, par2 = 3) %>%
+   BiCopSim(10000 , .) 
+ 
+t3 <- BiCop(2, tau = 0.8, par2 = 3) %>%
+   BiCopSim(10000 , .) 
+
+p1 <- qplot(t1[,1], t1[,2], colour = t1[,1], 
+            main= expression(paste("Student T  where ", tau,"= 0.2")),
+            xlab = "u", ylab = "v")
+
+p2 <- qplot(t2[,1], t2[,2], colour = t2[,1], 
+            main= expression(paste("Student T  where ", tau,"= 0.5")),
+            xlab = "u", ylab = "v")
+
+p3 <- qplot(t3[,1], t3[,2], colour = t3[,1], 
+            main= expression(paste("Student T  where ", tau,"= 0.8")),
+            xlab = "u", ylab = "v")
+
+pushViewport(viewport(layout = grid.layout(1, 3)))
+print(p1, vp = viewport(layout.pos.row = 1, layout.pos.col = 1))
+print(p2, vp = viewport(layout.pos.row = 1, layout.pos.col = 2))
+print(p3, vp = viewport(layout.pos.row = 1, layout.pos.col = 3))
+
+```
+
+
+# Fitting Copulas        
+
+* If you know the family of the copula that you are fitting then we can just use the `BiCopEst` function to get the parameters and test the fit
+```{r}
+fit1 <- BiCopEst(clayton[, 1], clayton[, 2], family = 5)
+summary(fit1)
+plot(fit1)
+```
+
+* In terms of testing, there are several goodness of fit tests one can use, Ill just use whites. See [goFCopula](https://cran.r-project.org/web/packages/gofCopula/index.html)
+```{r}
+# White's information matrix equality (White 1982) as introduced by Huang and Prokhorov (2011)
+#BiCopGofTest(clayton[, 1], clayton[, 2], fit1)
+
+BiCopKDE(clayton[, 1], clayton[, 2]) 
+
+contour(fit1, col = 2, add = TRUE, drawlabels = FALSE)
+
+```
+
+* If we don't know the copula type, the VineCopula package provides a function which will determine the appropriate copula and get the parameters of the fit
+
+```{r}
+# Best fit estimation
+fit2 <- BiCopSelect(clayton[, 1], clayton[, 2], familyset = c(0:5))
+
+BiCopKDE(clayton[, 1], clayton[, 2]) 
+contour(fit1, col = 2, add = TRUE, drawlabels = FALSE)
+contour(fit2, col = 4, add = TRUE, drawlabels = FALSE)
+
+#BiCopGofTest(clayton[, 1], clayton[, 2], fit2)
+
+```
+
+# Now, lets simulate some data from our copula
+```{r}
+copsim <- BiCopSim(10000, fit2)
+
+x <- copsim[,2]
+y <- copsim[,1]
+CDF <- BiCopCDF(copsim[,1],
+         copsim[,2],
+         BiCop(1, tau = 0.2))
+```
+
+```{r}
+PDF <- BiCopPDF(copsim[,1],
+         copsim[,2],
+         BiCop(1, tau = 0.2))
+```
+
+# Lets have a look
+```{r}
+plot(fit2)
+
+```
+
+
+# Vine copula -------------------------------------------------------------
+
+```{r}
+data(daxreturns)
+u <- daxreturns[, 1:4]
+pairs.copuladata(u)
+
+vinefit <- RVineStructureSelect(u, familyset = c(1:5))
+summary(vinefit)
+
+plot(vinefit, tree = 1, type = 2)
+plot(vinefit, tree = 2, type = 2)
+plot(vinefit, tree = 3, type = 2)
+
+contour(vinefit)
+
+usim <- RVineSim(1158, vinefit)
+pairs(usim, pch = ".", main = "Simulated")
+pairs(u, pch = ".", main = "Actuals")
+```
