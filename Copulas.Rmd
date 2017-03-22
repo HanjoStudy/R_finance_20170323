@@ -93,6 +93,28 @@ load_pkg(c("dplyr", "ggplot2"))
 
 Lets have a look visually
 
+# Transformations
+
+\centering
+\begin{columns}
+\begin{column}{2cm}
+  \begin{itemize}
+  \item<1> PDF
+  \item<2> CDF
+  \item<3> $CDF^{-1}$
+  \end{itemize}
+\end{column}
+\begin{column}{12cm}
+\centering
+\vfill
+  \includegraphics<1>[width = 0.5\columnwidth]{img/pdf.png}
+  \includegraphics<2>[width = 0.5\columnwidth]{img/cdf.png}
+  \includegraphics<3>[width = 0.5\columnwidth]{img/icdf.png}
+\end{column}
+\end{columns}
+
+
+
 # Definitions and basic properties
 * Define the uniform distribution on an interval $(0,1)$ by $U(0,1)$, i.e the probability of a random variable $U$ satisfying $P(U \leq u) = u$ for $u \in (0,1)$
     * This is the quantile function $(Q = F^{-1})$
@@ -195,7 +217,6 @@ Each of the structures provide their own insight into the dynamics of the market
 \vfill
 \includegraphics<1>[width = 0.5\columnwidth]{img/dvine.png}
 \includegraphics<2>[width = 0.5\columnwidth]{img/cvine.png}
-\includegraphics<3>[width = \columnwidth]{img/dvine.png}
 \end{column}
 \end{columns}
 
@@ -206,14 +227,84 @@ Each of the structures provide their own insight into the dynamics of the market
 * Value at risk estimation of large portfolios bottom up
 * Modeling complex dependence measures
 
-# End
+# A look into energy market depenendence using Vine Copula
 
-Questions?
+\centering
+\begin{columns}
+\begin{column}{12cm}
+\centering
+\vfill
+\includegraphics[width = 0.4\columnwidth]{img/uni.png}
+\end{column}
+\end{columns}
+
+
+
+# Energ market vines 
+
+\centering
+\begin{columns}
+\begin{column}{3cm}
+  \begin{itemize}
+  \item<1> Pre - GFC
+  \item<2> GFC
+  \item<3> Post - GFC
+  \end{itemize}
+\end{column}
+\begin{column}{12cm}
+\centering
+\vfill
+\includegraphics<1>[width = 0.7\columnwidth]{img/network_rvine_pre.jpeg}
+\includegraphics<2>[width = 0.7\columnwidth]{img/network_rvine_GFC.jpeg}
+\includegraphics<3>[width = 0.7\columnwidth]{img/network_rvine_post.jpeg}
+\end{column}
+\end{columns}
+
+# Quantifying dynamic dependence
+
+\centering
+\begin{columns}
+\begin{column}{12cm}
+\centering
+\vfill
+\includegraphics<1>[width = 0.7\columnwidth]{img/beta.png}
+\includegraphics<2>[width = 0.5\columnwidth]{img/tau_dist.png}
+\end{column}
+\end{columns}
+
+# Final results
+
+\begin{table}[ht]
+\centering
+\resizebox{\textwidth}{!}{%
+\begingroup\fontsize{9pt}{10pt}\selectfont
+\begin{tabular}{rllrrrrrl}
+  \hline
+ & hypothesis & fit Type & estimate & statistic & p.value & conf.low & conf.high & alternative \\ 
+  \hline
+1 & Pre-GFC/GFC & MLE & -0.11 & 1296773158.00 & 1.00 & -0.11 & Inf & greater \\ 
+  2 & Pre-GFC/GFC & MME & -0.11 & 1360073661.00 & 1.00 & -0.11 & Inf & greater \\ 
+  3 & Pre-GFC/Post-GFC & MLE & -0.07 & 1718227541.00 & 1.00 & -0.07 & Inf & greater \\ 
+  4 & Pre-GFC/Post-GFC & MME & -0.07 & 1727208393.00 & 1.00 & -0.07 & Inf & greater \\ 
+   \hline
+\end{tabular}
+\endgroup
+}
+\caption{Mann-Whitey location test results} 
+\label{tab:wilcox_res}
+\end{table}
+
+# Conclusion
+
+* Copulas act as a unique tool in to model non-conforming marginals that weren't possible before
+* Vine Copulas have the ability to model complex relationships talks to their flexibility in their structuring
+* Informs on how assets are dependent - whether its tail dependence or general symmetric driving co-dependency
+* Opens the doors to practitioners (such as risk managers), to be better equiped in dealing with modern day finance
 
 # Contact information
 
 * hanjo.oden@gmail.com
-* https://github.com/HanjoStudy
+* https://github.com/HanjoStudy/R_finance_20170323
 
 
 
